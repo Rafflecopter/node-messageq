@@ -32,10 +32,10 @@ exports.cleanUp = function cleanUp (test) {
   test.done();
 };
 
-// If we are getting a test.done complaint, turn this on. It breaks nodeunit, but helps find errors
-// process.on('uncaughtException', function (err) {
-//   console.error(err.stack);
-// });
+// If we are getting a test.done complaint, turn this on. It helps find errors
+process.on('uncaughtException', function (err) {
+  console.error(err.stack);
+});
 
 
 function createTests(type, opts) {
@@ -69,7 +69,6 @@ function createTests(type, opts) {
       setTimeout(function () {
         var Q = Q1._channels['mychan'].queue;
         async.parallel([
-          checkByStorageList(test, Q, Q.done, [{hello:'world'}], 'id'),
           checkByStorageList(test, Q, Q.doing, []),
           checkByStorageList(test, Q, Q.todo, []),
         ], test.done);
