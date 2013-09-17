@@ -58,7 +58,7 @@ MQ.prototype._subscribers = function (channel, callback) {
 
 // -- Public API --
 
-MQ.prototype.subscribe = function subscribe(channel) {
+MQ.prototype.sub = MQ.prototype.subscribe = function subscribe(channel) {
 
   // -- Core subscribe logic --
   var endpoint = this._prefix + this._delimeter + channel,
@@ -80,13 +80,14 @@ MQ.prototype.subscribe = function subscribe(channel) {
   return this;
 };
 
-MQ.prototype.publish = function publish(channel, message, callback) {
-  var self = this;
+MQ.prototype.pub = MQ.prototype.publish = function publish(channel, message, callback) {
+  var self = this,
+    ourEndpoint = this._channels[channel] && this._channels[channel].endpoint;
 
   async.waterfall([
     _.bind(this._subscribers, this, channel),
     function (endpoints, cb) {
-      async.each(endpoints, function (endp, cb) {
+      async.each(_.without(endpoints, ourEndpoint), function (endp, cb) {
         self._queue(endp).push(message, cb);
       }, cb);
     },
