@@ -1,6 +1,6 @@
 # messageq [![Build Status][1]][2]
 
-A simple pub/sub system that uses reliable task queues for delivery. It uses [relyq](https://github.com/yanatan16/relyq) (simple Redis-backed reliable task queues) to establish reliable messaging. It also provides a pub/sub interface for reliable messaging by adding a discovery service backed by any database or service using a modular system.
+A simple pub/sub system that uses reliable task queues for delivery. It uses [relyq](https://github.com/Rafflecopter/relyq) (simple Redis-backed reliable task queues) to establish reliable messaging. It also provides a pub/sub interface for reliable messaging by adding a discovery service backed by any database or service using a modular system.
 
 ## Operation
 
@@ -34,7 +34,7 @@ Note that all options can be passed in at create time. Some, which apply to subs
 - `idfield: 'tid'` (default: 'id') - The field of the task objects where the ID can be found.
 - `ensureid: false` (default: true) - Adds an ID to the object if not there.
 
-- `Q: relyq.RedisJsonQ` (defaults to RedisJsonQ) A [relyq](https://github.com/yanatan16/relyq) type to use as the sub-queues backend. Each one has specific options (overridable at subscribe time) that you should check out before continuing.
+- `Q: relyq.RedisJsonQ` (defaults to RedisJsonQ) A [relyq](https://github.com/Rafflecopter/relyq) type to use as the sub-queues backend. Each one has specific options (overridable at subscribe time) that you should check out before continuing.
 
 These options can be overridden at subscribe time:
 
@@ -73,5 +73,5 @@ Options:
 
 See LICENSE file.
 
-[1]: https://travis-ci.org/yanatan16/node-relyq.png?branch=master
-[2]: http://travis-ci.org/yanatan16/node-relyq
+[1]: https://travis-ci.org/Rafflecopter/node-messageq.png?branch=master
+[2]: http://travis-ci.org/Rafflecopter/node-messageq
