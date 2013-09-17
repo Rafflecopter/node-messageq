@@ -7,7 +7,7 @@ A simple pub/sub system that uses reliable task queues for delivery. It uses [re
 Install:
 
 ```
-npm install relyq
+npm install messageq
 ```
 
 Usage:
@@ -17,11 +17,24 @@ var redis = require('redis'),
   cli = redis.createClient();
 
 var messageq = require('messageq'),
-  mq = new messageq.Redis(cli, options);
+  mq = new messageq.RedisMQ(cli, {prefix: 'my-endpoint', discovery_prefix: 'my-queue-system'}); // see options below
 
 mq.subscribe('channel-name' [, function (message) {...}]);
-mq.on('channel-name', function (message) {...});
+mq.on('message:channel-name', function (message) {...});
+
+mq.publish('channel-name', {my: 'message'}, function (err) {...});
 ```
+
+Options:
+
+- `prefix: 'my-endpoint'` (required) - The redis key prefix for the sub-queues.
+- `delimeter: '|'` (default: ':') - The redis key delimeter for the sub-queues and discovery prefix if using RedisMQ.
+- `idfield: 'tid'` (default: 'id') - The field of the task objects where the ID can be found.
+- `ensureid: false` (default: true) - Adds an ID to the object if not there.
+
+- `Q: relyq.RedisJsonQ` (defaults to RedisJsonQ) A [relyq](https://github.com/yanatan16/relyq) type to use as the sub-queues backend. Each one has specific options that you should check out before continuing.
+
+In addition, the Discovery Backends have their own options (see below).
 
 ## Tests
 
@@ -31,18 +44,21 @@ npm install --dev
 npm test
 ```
 
-## Storage Backends
+## Discovery Backends
 
 The messageq system can use any of the following backends, which are subclasses of the master type, so each represents a fully functional messageq system type.
 
 ### Redis
 
-The
+The Redis backend is the primary suggested one, because of its proximity to the queues.
 
+```javascript
+mq = new messageq.RedisMQ(cli, options);
+```
 
-### Mongo
+Options:
 
-
+- `discovery_prefix: 'my-queue-system'` (required) - The redis key prefix for the discovery backend
 
 
 ## License
