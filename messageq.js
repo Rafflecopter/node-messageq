@@ -58,16 +58,19 @@ MQ.prototype._subscribers = function (channel, callback) {
 
 // -- Public API --
 
-MQ.prototype.sub = MQ.prototype.subscribe = function subscribe(channel) {
-
+MQ.prototype.sub = MQ.prototype.subscribe = function subscribe(channel, other_opts) {
   // -- Core subscribe logic --
   var endpoint = this._prefix + this._delimeter + channel,
-    self = this;
+    self = this,
+    nargs = _.isFunction(other_opts) ? 1 : 2,
+    listeners = Array.prototype.slice.call(arguments, nargs),
+    opts = _.isFunction(other_opts) ? {} : other_opts;
 
-  this._create_listener(channel, endpoint);
+
+  this._create_listener(channel, endpoint, opts);
 
   // Apply on(channel, listener) for all listeners
-  var listeners = Array.prototype.slice.call(arguments, 1);
+  var listeners = Array.prototype.slice.call(arguments, nargs);
   _.each(listeners, _.bind(this.on, this, 'message:'+channel));
 
   this._register(channel, endpoint, function (err) {
@@ -88,7 +91,7 @@ MQ.prototype.pub = MQ.prototype.publish = function publish(channel, message, cal
     _.bind(this._subscribers, this, channel),
     function (endpoints, cb) {
       async.each(_.without(endpoints, ourEndpoint), function (endp, cb) {
-        self._queue(endp).push(message, cb);
+        self._queue(endp, self._opts).push(message, cb);
       }, cb);
     },
   ], callback);
@@ -133,10 +136,11 @@ MQ.prototype._end1 = function (chan, callback) {
   chan.listener.once('end', callback).end();
 };
 
-MQ.prototype._create_listener = function(channel, endpoint) {
+MQ.prototype._create_listener = function(channel, endpoint, other_opts) {
   var self = this,
-    q = this._queue(endpoint),
-    l = q.listen(this._opts)
+    opts = _.extend(_.clone(this._opts), other_opts),
+    q = this._queue(endpoint, opts),
+    l = q.listen(opts)
       .on('error', function (err, taskref) {
         self.emit('error', err, channel, taskref);
       })
@@ -147,10 +151,15 @@ MQ.prototype._create_listener = function(channel, endpoint) {
   self._channels[channel] = {endpoint: endpoint, queue: q, listener: l};
 };
 
-MQ.prototype._queue = function _queue(endpoint) {
+MQ.prototype._queue = function _queue(endpoint, opts) {
   // Create a new relyq and cache it
   return this._queues[endpoint] ||
-    (this._queues[endpoint] = new this._Q(this._redis, _.extend(this._opts, { prefix: endpoint })));
+    (this._queues[endpoint] =
+      new this._Q(
+        this._redis,
+        _.extend(opts || {}, { prefix: endpoint })
+      )
+    );
 };
 
 module.exports = MQ;

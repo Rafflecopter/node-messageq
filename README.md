@@ -34,7 +34,10 @@ Note that all options can be passed in at create time. Some, which apply to subs
 - `idfield: 'tid'` (default: 'id') - The field of the task objects where the ID can be found.
 - `ensureid: false` (default: true) - Adds an ID to the object if not there.
 
-- `Q: relyq.RedisJsonQ` (defaults to RedisJsonQ) A [relyq](https://github.com/yanatan16/relyq) type to use as the sub-queues backend. Each one has specific options that you should check out before continuing.
+- `Q: relyq.RedisJsonQ` (defaults to RedisJsonQ) A [relyq](https://github.com/yanatan16/relyq) type to use as the sub-queues backend. Each one has specific options (overridable at subscribe time) that you should check out before continuing.
+
+These options can be overridden at subscribe time:
+
 - `timeout: 2` (default: 1) Number of seconds to wait between checking if `end()` has been called for each queue listener.
 - `max_out: 10` (default: 0/infinity) Max number of message events to fire concurrently.
 - `clean_finish: true` (default: true) Does not keep successfully finished messages. Set to `'keep_storage'` if you wish to keep them in storage but still remove from the queue.

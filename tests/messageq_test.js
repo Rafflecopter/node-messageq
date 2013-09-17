@@ -224,6 +224,26 @@ function createTests(type, opts) {
     Q2.pub('chan2', {on: 'chan2', last: true});
   };
 
+  tests.overridable_options = function (test) {
+    var out = 0;
+
+    Q1.on('error', test.ifError)
+      .subscribe('chan', {max_out: 1}, function (msg, done) {
+        test.equal(++out, 1);
+        setTimeout(function () {
+          done();
+          --out;
+          if (msg.last) {
+            test.done();
+          }
+        }, 5);
+      });
+
+    Q2.pub('chan', {});
+    Q2.pub('chan', {});
+    Q2.pub('chan', {last: true});
+  };
+
   return tests;
 }
 
