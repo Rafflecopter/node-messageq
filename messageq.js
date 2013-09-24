@@ -133,7 +133,7 @@ MQ.prototype.end = function end (callback) {
 // -- Helpers --
 
 MQ.prototype._end1 = function (chan, callback) {
-  chan.listener.once('end', callback).end();
+  chan.queue.end(callback);
 };
 
 MQ.prototype._create_listener = function(channel, endpoint, other_opts) {
