@@ -48,7 +48,6 @@ In addition, the Discovery Backends have their own options (see below).
 
 ```
 npm install -g nodeunit
-npm install --dev
 npm test
 ```
 

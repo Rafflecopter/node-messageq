@@ -1,7 +1,7 @@
 {
   "name": "messageq",
   "description": "A reliable delivery pub/sub messaging system.",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "author": "Jon Eisen <jon@metricfeat.com>",
   "scripts": {
     "test": "nodeunit tests"
@@ -16,7 +16,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "relyq": "~0.4.0",
+    "relyq": "~0.5.1",
     "underscore": "~1.5.2",
     "async": "~0.2.9",
     "redis": "~0.8.4",
