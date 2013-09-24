@@ -154,13 +154,16 @@ function createTests(type, opts) {
         test.notEqual(msg.from, 'q1');
         counts[msg.key] = (counts[msg.key] || 0) + 1;
         done();
+        if (msg.last && counts.z===2) {
+          finaly();
+        }
       });
     Q2.on('error', test.ifError)
       .sub('chan', function (msg, done) {
         test.notEqual(msg.from, 'q2');
         counts[msg.key] = (counts[msg.key] || 0) + 1;
         done();
-        if (msg.last) {
+        if (msg.last && counts.z===2) {
           finaly();
         }
       });
@@ -172,7 +175,7 @@ function createTests(type, opts) {
       });
 
     function finaly() {
-      test.deepEqual(counts, {x:2,y:2,z:2});
+      test.ok(counts.x===2&&counts.y===2&&counts.z===2, 'Counts should all be 2: ' +JSON.stringify(counts));
       test.done();
     }
 

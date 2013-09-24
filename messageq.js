@@ -121,24 +121,24 @@ MQ.prototype.unsubscribe = function unsubscribe(channel, callback) {
 MQ.prototype.end = function end (callback) {
   var self = this;
 
-  async.map(_.values(this._channels), this._end1, function (err) {
+  var self = this;
+
+  if (callback)
+    self.once('end', callback);
+
+  async.map(_.values(this._queues), function (q, cb) { q.end(cb); }, function (err) {
     if (err) {
       self.emit('error', err);
     }
-    self.emit('end');
-    if (callback) callback();
+    self.emit('end', err);
   });
 };
 
 // -- Helpers --
 
-MQ.prototype._end1 = function (chan, callback) {
-  chan.queue.end(callback);
-};
-
 MQ.prototype._create_listener = function(channel, endpoint, other_opts) {
   var self = this,
-    opts = _.extend(_.clone(this._opts), other_opts),
+    opts = _.extend(_.clone(this._opts), other_opts, {allow_defer: false}),
     q = this._queue(endpoint, opts),
     l = q.listen(opts)
       .on('error', function (err, taskref) {
