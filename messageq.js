@@ -20,7 +20,10 @@ function MQ(redis, opts) {
   this._redis = redis;
   this._prefix = opts.prefix;
   this._delimeter = opts.delimeter || ':';
-  this._opts = opts;
+  this._opts = _.extend(opts, {
+    allow_defer: false,
+    allow_recur: false,
+  });
   this._channels = [];
   this._queues = {};
 
@@ -138,10 +141,7 @@ MQ.prototype.end = function end (callback) {
 
 MQ.prototype._create_listener = function(channel, endpoint, other_opts) {
   var self = this,
-    opts = _.extend(_.clone(this._opts), other_opts, {
-      allow_defer: false,
-      allow_recur: false,
-    }),
+    opts = _.extend(_.clone(this._opts), other_opts),
     q = this._queue(endpoint, opts),
     l = q.listen(opts)
       .on('error', function (err, taskref) {
