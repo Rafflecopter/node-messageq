@@ -16,7 +16,11 @@ var _ = require('underscore'),
 // -- Main Type --
 // MQ is a messageq object
 function MQ(redis, opts) {
-  this._Q = opts.Q || relyq.RedisJsonQ;
+  EventEmitter.call(this);
+
+  this._Q = opts.Q ?
+    _.isFunction(opts.Q) ? opts.Q : relyq[opts.Q] :
+    relyq.RedisJsonQ;
   this._redis = redis;
   this._prefix = opts.prefix;
   this._delimeter = opts.delimeter || ':';
