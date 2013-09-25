@@ -38,7 +38,6 @@ Note that all options can be passed in at create time. Some, which apply to subs
 
 These options can be overridden at subscribe time:
 
-- `timeout: 2` (default: 1) Number of seconds to wait between checking if `end()` has been called for each queue listener.
 - `max_out: 10` (default: 0/infinity) Max number of message events to fire concurrently.
 - `clean_finish: true` (default: true) Does not keep successfully finished messages. Set to `'keep_storage'` if you wish to keep them in storage but still remove from the queue.
 
