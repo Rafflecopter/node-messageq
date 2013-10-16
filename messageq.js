@@ -38,6 +38,8 @@ function MQ(redis, opts) {
       return id;
     };
   }
+
+  this._memo_subscribers = decayingMemoizeBound(this._subscribers, this, opts.ttl || 5000)
 }
 
 util.inherits(MQ, EventEmitter);
@@ -95,7 +97,7 @@ MQ.prototype.pub = MQ.prototype.publish = function publish(channel, message, cal
     ourEndpoint = this._channels[channel] && this._channels[channel].endpoint;
 
   async.waterfall([
-    _.bind(this._subscribers, this, channel),
+    _.bind(this._memo_subscribers, this, channel),
     function (endpoints, cb) {
       async.each(_.without(endpoints, ourEndpoint), function (endp, cb) {
         self._queue(endp, self._opts).push(message, cb);
@@ -170,3 +172,30 @@ MQ.prototype._queue = function _queue(endpoint, opts) {
 };
 
 module.exports = MQ;
+
+function decayingMemoizeBound(f, context, decay) {
+  // Memoize a function which takes 1 argument a boudn context and a callback
+  var memo = {}
+  return function (arg, callback) {
+    var v = get(arg)
+    if (v) {
+      return callback(null, v)
+    }
+    return set(arg, callback)
+  }
+
+  function get(arg) {
+    var v = memo[arg]
+    if (v && v.t > Date.now() - decay) {
+      return v.v
+    }
+  }
+  function set(arg, cb) {
+    f.call(context, arg, function (err, val) {
+      if (!err) {
+        memo[arg] = {t: Date.now(), v: val}
+      }
+      cb(err, val)
+    })
+  }
+}

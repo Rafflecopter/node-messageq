@@ -33,6 +33,7 @@ Note that all options can be passed in at create time. Some, which apply to subs
 - `delimeter: '|'` (default: ':') - The redis key delimeter for the sub-queues and discovery prefix if using RedisMQ.
 - `idfield: 'tid'` (default: 'id') - The field of the task objects where the ID can be found.
 - `ensureid: false` (default: true) - Adds an ID to the object if not there.
+- `ttl: 5000` (default: 5s (in ms)) - Time between subscriber lookups
 
 - `Q: relyq.RedisJsonQ` (defaults to RedisJsonQ) A [relyq](https://github.com/Rafflecopter/relyq) type to use as the sub-queues backend. Each one has specific options (overridable at subscribe time) that you should check out before continuing.
 
