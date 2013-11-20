@@ -93,13 +93,12 @@ MQ.prototype.sub = MQ.prototype.subscribe = function subscribe(channel, other_op
 };
 
 MQ.prototype.pub = MQ.prototype.publish = function publish(channel, message, callback) {
-  var self = this,
-    ourEndpoint = this._channels[channel] && this._channels[channel].endpoint;
+  var self = this;
 
   async.waterfall([
     _.bind(this._memo_subscribers, this, channel),
     function (endpoints, cb) {
-      async.each(_.without(endpoints, ourEndpoint), function (endp, cb) {
+      async.each(endpoints, function (endp, cb) {
         self._queue(endp, self._opts).push(message, cb);
       }, cb);
     },

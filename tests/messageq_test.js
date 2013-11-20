@@ -125,12 +125,12 @@ function createTests(type, opts) {
   // This essentially tests that we don't send ourself our own messages
   tests.two_way = function (test) {
     Q1.on('error', test.ifError)
-      .sub('chan', function (msg, done) {
+      .sub('chan1', function (msg, done) {
         test.equal(msg.from, 'q2');
         done();
       });
     Q2.on('error', test.ifError)
-      .sub('chan', function (msg, done) {
+      .sub('chan2', function (msg, done) {
         test.equal(msg.from, 'q1');
         done();
         if (msg.last) {
@@ -138,50 +138,46 @@ function createTests(type, opts) {
         }
       });
 
-    Q1.pub('chan', {from: 'q1'});
-    Q2.pub('chan', {from: 'q2'});
-    Q2.pub('chan', {from: 'q2'});
-    Q1.pub('chan', {from: 'q1'});
-    Q2.pub('chan', {from: 'q2'});
-    Q1.pub('chan', {from: 'q1', last:true});
+    Q1.pub('chan2', {from: 'q1'});
+    Q2.pub('chan1', {from: 'q2'});
+    Q2.pub('chan1', {from: 'q2'});
+    Q1.pub('chan2', {from: 'q1'});
+    Q2.pub('chan1', {from: 'q2'});
+    Q1.pub('chan2', {from: 'q1', last:true});
   };
 
   tests.manage_a_troi = function (test) {
     var counts = {};
 
     Q1.on('error', test.ifError)
-      .sub('chan', function (msg, done) {
-        test.notEqual(msg.from, 'q1');
-        counts[msg.key] = (counts[msg.key] || 0) + 1;
-        done();
-        if (msg.last && counts.z===2) {
-          finaly();
-        }
-      });
+      .sub('chan2', sub('q1'))
+      .sub('chan3', sub('q1'));
     Q2.on('error', test.ifError)
-      .sub('chan', function (msg, done) {
-        test.notEqual(msg.from, 'q2');
-        counts[msg.key] = (counts[msg.key] || 0) + 1;
-        done();
-        if (msg.last && counts.z===2) {
-          finaly();
-        }
-      });
+      .sub('chan1', sub('q2'))
+      .sub('chan3', sub('q2'));
     Q3.on('error', test.ifError)
-      .sub('chan', function (msg, done) {
-        test.notEqual(msg.from, 'q3');
-        counts[msg.key] = (counts[msg.key] || 0) + 1;
-        done();
-      });
+      .sub('chan1', sub('q3'))
+      .sub('chan2', sub('q3'));
 
     function finaly() {
       test.ok(counts.x===2&&counts.y===2&&counts.z===2, 'Counts should all be 2: ' +JSON.stringify(counts));
       test.done();
     }
 
-    Q1.pub('chan', {from: 'q1', key: 'x'});
-    Q2.pub('chan', {from: 'q2', key: 'y'});
-    Q3.pub('chan', {from: 'q3', key: 'z', last: true});
+    function sub(from) {
+      return function (msg, done) {
+        test.notEqual(msg.from, from);
+        counts[msg.key] = (counts[msg.key] || 0) + 1;
+        done();
+        if (msg.last && counts.z==2) {
+          finaly();
+        }
+      };
+    }
+
+    Q1.pub('chan1', {from: 'q1', key: 'x'});
+    Q2.pub('chan2', {from: 'q2', key: 'y'});
+    Q3.pub('chan3', {from: 'q3', key: 'z', last: true});
   }
 
   tests.two_chans = function (test) {
@@ -214,8 +210,8 @@ function createTests(type, opts) {
 
     function finaly() {
       test.deepEqual(counts, {
-        chan1: 3,
-        chan2: 4,
+        chan1: 4,
+        chan2: 6,
       });
       test.done();
     }
