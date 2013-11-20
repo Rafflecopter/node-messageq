@@ -194,6 +194,7 @@ function createTests(type, opts) {
         test.equal(msg.on, 'chan2');
         counts[msg.on] = (counts[msg.on]||0)+1;
         done();
+        if (msg.last) finaly();
       })
       .sub('chan1', function (msg, done) {
         test.equal(msg.on, 'chan1');
@@ -208,7 +209,10 @@ function createTests(type, opts) {
         if (msg.last) finaly();
       });
 
+    var i = 0
     function finaly() {
+      if (++i < 2) return;
+
       test.deepEqual(counts, {
         chan1: 4,
         chan2: 6,
