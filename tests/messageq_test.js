@@ -16,7 +16,7 @@ var messageq = require('..'),
 var storages = {
   'RedisMQ': [messageq.RedisMQ, {
     delimeter: ':',
-    Q: 'RedisMsgPackQ',
+    Q: 'RedisJsonQ',
     idfield: 'id',
     ensureid: true
   }],
